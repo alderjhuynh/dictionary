@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dictionary</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="band">
+  <div class="band-inner">
+    <h1>Dictionary</h1>
+    <p class="tagline">A small English dictionary.</p>
+  </div>
+</div>
+
+<main>
+  <div class="search-card">
+    <input id="search" type="text" placeholder="Look up a word…" autocomplete="off" disabled>
+    <div id="suggestions"></div>
+  </div>
+
+  <div id="status">Loading dictionary…
+    <div class="bar"><span id="progress"></span></div>
+  </div>
+
+  <div id="result"></div>
+</main>
+
+<footer>
+  Definitions derived from <a href="https://kaikki.org" target="_blank" rel="noopener">kaikki.org</a>'s Wiktionary extraction, via the <a href="https://huggingface.co/datasets/BlazingCerulean/OpenLeaf-Dictionary" target="_blank" rel="noopener">OpenLeaf-Dictionary</a> dataset.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/sql.js@1.14.2/dist/sql-wasm.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>
