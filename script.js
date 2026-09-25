@@ -77,7 +77,38 @@
     return str.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
-  function showEntry(searchedWord){
+  function getWordFromLocation(){
+    const params = new URLSearchParams(window.location.search);
+    const fromQuery = params.get('word') || params.get('w') || params.get('q');
+    if (fromQuery && fromQuery.trim()) return fromQuery.trim();
+    const hash = window.location.hash.replace(/^#\/?/, '');
+    if (hash){
+      const m = hash.match(/^(?:word\/)?(.+)$/i);
+      if (m && m[1].trim()){
+        try { return decodeURIComponent(m[1].trim()); }
+        catch { return m[1].trim(); }
+      }
+    }
+    return '';
+  }
+
+  function setWordInUrl(word, replace){
+    const url = new URL(window.location.href);
+    if (word) url.searchParams.set('word', word);
+    else url.searchParams.delete('word');
+    url.searchParams.delete('w');
+    url.searchParams.delete('q');
+    url.hash = '';
+    const same = url.href === window.location.href;
+    if (same) return;
+    if (replace) window.history.replaceState({ word }, '', url);
+    else window.history.pushState({ word }, '', url);
+  }
+
+  function showEntry(searchedWord, opts = {}){
+    const { updateUrl = true, replaceUrl = false } = opts;
+    if (updateUrl) setWordInUrl(searchedWord, replaceUrl);
+    document.title = searchedWord ? `${searchedWord} - Dictionary` : 'Dictionary';
     let row = fetchWord(searchedWord);
     if (!row){
       resultEl.innerHTML = `<p class="not-found">No entry for “${escapeHtml(searchedWord)}”.</p>`;
@@ -164,9 +195,29 @@
     if (!e.target.closest('.search-card')) suggestEl.style.display = 'none';
   });
 
+  window.addEventListener('popstate', () => {
+    if (!db) return;
+    const word = getWordFromLocation();
+    if (word){
+      searchEl.value = word;
+      suggestEl.style.display = 'none';
+      showEntry(word, { updateUrl: false });
+    } else {
+      searchEl.value = '';
+      resultEl.innerHTML = '';
+      document.title = 'Dictionary';
+    }
+  });
+
   loadDatabase().then(() => {
     statusEl.style.display = 'none';
     searchEl.disabled = false;
+    const initialWord = getWordFromLocation();
+    if (initialWord){
+      searchEl.value = initialWord;
+      showEntry(initialWord, { updateUrl: false, replaceUrl: true });
+      setWordInUrl(initialWord, true);
+    }
     searchEl.focus();
   }).catch(err => {
     setStatus('Could not load the dictionary.');
